@@ -21,7 +21,8 @@ fi
 # Fetch the headers using curl
 headers=$(curl -I -s "$url")
 
-echo "Headers for $url:"
+# Display the header with big font style using ANSI escape codes (in yellow)
+echo -e "\033[1;33mHeaders for $url:\033[0m"  # Yellow
 
 # Check if headers are present
 if [ -z "$headers" ]; then
@@ -33,14 +34,15 @@ fi
 # Initialize header check variable
 relevant_headers_found=false
 
-# Display the headers if any relevant security headers are found
+# Check for relevant security headers
 if echo "$headers" | grep -qi "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options\|X-XSS-Protection\|Referrer-Policy"; then
   echo "----------------------------------------"
-  echo "$headers" | grep -i "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options\|X-XSS-Protection\|Referrer-Policy"
+  # Display relevant headers in green
+  echo -e "\033[1;32m$headers\033[0m" | grep -i "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options\|X-XSS-Protection\|Referrer-Policy"
   relevant_headers_found=true
 else
-  echo "----------------------------------------"
-  echo "No relevant security headers found."
+  echo -e "\033[1;31m----------------------------------------\033[0m"  # Red
+  echo -e "\033[1;31mNo relevant security headers found.\033[0m"  # Red
 fi
 
 # Define scoring mechanism
@@ -63,17 +65,18 @@ if [ ${#missing_headers[@]} -eq $total_headers ]; then
   score=0
 fi
 
-# Show final score
-echo "----------------------------------------"
-echo "Security Header Score: $score/100"
-echo "----------------------------------------"
+# Show final score in blue
+echo -e "\033[1;34m----------------------------------------\033[0m"  # Blue
+echo -e "\033[1;34mSecurity Header Score: $score/100\033[0m"  # Blue
+echo -e "\033[1;34m----------------------------------------\033[0m"  # Blue
 
 # Report on missing headers
 if [ ${#missing_headers[@]} -eq 0 ]; then
-  echo "All important security headers are present!"
+  echo -e "\033[1;32mAll important security headers are present!\033[0m"
 else
-  echo "Missing headers:"
+  echo -e "\033[1;31mMissing headers:\033[0m"  # Red
+  echo -e "\033[1;31m-----------------\033[0m"
   for header in "${missing_headers[@]}"; do
-    echo "$header"
+    echo "$header" 
   done
 fi
