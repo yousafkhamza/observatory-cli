@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # URL for the script in raw format
-SCRIPT_URL="https://raw.githubusercontent.com/<username>/<repository>/main/check_headers.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/yousafkhamza/header-checker/main/check_headers.sh"
 
 # Installation directory
 INSTALL_DIR="$HOME/header-checker"
