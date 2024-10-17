@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Author: Yousaf
+# Date: 2024
+# Description: This script checks the security headers of a given URL.
+# Usage: ./check_header.sh <url>
+# Ensure the URL starts with http:// or https://
+# It fetches the headers and evaluates the presence of important security headers.
+# The script also calculates a score based on the headers found.
+
 url="$1"
 
 # Ensure the URL starts with http:// or https://
