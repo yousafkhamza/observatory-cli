@@ -16,21 +16,48 @@ elif [[ ! "$url" =~ ^https?:// ]]; then
   url="https://$url"  # Default to https if no scheme is provided
 fi
 
+# Function to display a simple progress bar
+function progress_bar {
+    local duration="$1"
+    local interval=1  # Use whole seconds for the sleep duration
+    local elapsed=0
+
+    while [ $elapsed -lt $duration ]; do
+        echo -n "."
+        sleep $interval
+        elapsed=$((elapsed + interval))
+    done
+    echo
+}
+
+# Show progress while fetching the HTTP status code and headers in the background
+{
+    echo -n "Checking Site Score of "$url""
+    progress_bar 5  # Adjust the duration if needed
+} &  # Run the progress bar in the background
+
 # Fetch the HTTP status code and headers from the URL
 status_response=$(curl -s -o /dev/null -w "%{http_code}" "$url")
 http_code=$status_response
 
+# Capture the background process ID
+progress_pid=$!
+
 # Check if the status code is valid
 if [[ "$http_code" != "200" && "$http_code" != "301" && "$http_code" != "302" && "$http_code" != "307" && "$http_code" != "308" ]]; then
   echo -e "\033[1;31mError: Unable to reach $url. Status code: $http_code\033[0m"
+  kill $progress_pid 2>/dev/null  # Safely kill the progress bar if it is still running
   exit 1
 fi
+
+# Kill the background progress bar
+kill $progress_pid 2>/dev/null  # Safely kill the progress bar
 
 # Fetch the headers using curl
 headers=$(curl -I -L -s "$url")  # Added -L to follow redirections
 
 # Display the header with big font style using ANSI escape codes (in pink)
-echo -e "\033[1;35mResult for $url:\033[0m"  # Pink
+echo -e "\n\033[1;35mResult for $url:\033[0m"  # Pink
 
 # Initialize header check variable
 relevant_headers_found=false
