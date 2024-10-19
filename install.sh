@@ -18,7 +18,7 @@ LINK_PATH="/usr/local/bin/observatory-checker"
 
 # Check if the application is already installed
 if [ -f "$SCRIPT_PATH" ]; then
-  echo "The observatory-cli is already installed at $SCRIPT_PATH."
+  echo "The Observatory-CLI is already installed at $SCRIPT_PATH."
   echo "You can run it using the command: 'observatory-checker <url>'."
   exit 0
 fi
@@ -38,5 +38,5 @@ if [ -L "$LINK_PATH" ]; then
 else
   # Create a symlink in /usr/local/bin for easy access
   sudo ln -s "$SCRIPT_PATH" "$LINK_PATH"
-  echo "Installation complete! You can now run the header checker using the command 'observatory-checker <url>'."
+  echo "Installation complete! You can now run the Observatory-CLI using the command 'observatory-checker <url>'."
 fi
