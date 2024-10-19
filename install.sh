@@ -12,14 +12,14 @@
 SCRIPT_URL="https://raw.githubusercontent.com/yousafkhamza/observatory-cli/main/script.sh"
 
 # Installation directory
-INSTALL_DIR="$HOME/observatory-cli"
+INSTALL_DIR="$HOME/observatory"
 SCRIPT_PATH="$INSTALL_DIR/observatory-cli.sh"
-LINK_PATH="/usr/local/bin/observatory-cli"
+LINK_PATH="/usr/local/bin/observatory-checker"
 
 # Check if the application is already installed
 if [ -f "$SCRIPT_PATH" ]; then
-  echo "The header checker is already installed at $SCRIPT_PATH."
-  echo "You can run it using the command: 'observatory-cli <url>'."
+  echo "The observatory-cli is already installed at $SCRIPT_PATH."
+  echo "You can run it using the command: 'observatory-checker <url>'."
   exit 0
 fi
 
@@ -34,9 +34,9 @@ chmod +x "$SCRIPT_PATH"
 
 # Check if the symlink already exists
 if [ -L "$LINK_PATH" ]; then
-  echo "The command 'observatory-cli' is already available in your PATH."
+  echo "The command 'observatory-checker' is already available in your PATH."
 else
   # Create a symlink in /usr/local/bin for easy access
   sudo ln -s "$SCRIPT_PATH" "$LINK_PATH"
-  echo "Installation complete! You can now run the header checker using the command 'observatory-cli <url>'."
+  echo "Installation complete! You can now run the header checker using the command 'observatory-checker <url>'."
 fi

@@ -24,7 +24,7 @@ curl -sSL https://raw.githubusercontent.com/yousafkhamza/observatory-cli/main/in
 After installation, you can run the script by providing a URL as an argument:
 
 ```bash
-observatory-cli <url>
+observatory-checker <url>
 ```
 
 If you don't provide the `http://` or `https://` prefix, the script will default to `https://`.
