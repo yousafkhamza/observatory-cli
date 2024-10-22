@@ -27,6 +27,15 @@ After installation, you can run the script by providing a URL as an argument:
 observatory-checker <url>
 ```
 
+## if you're face any issues in the above installation you can use the script directly via clone
+
+```bash
+git clone https://github.com/yousafkhamza/observatory-cli.git
+cd observatory-cli
+chmod +x setup.sh
+./setup.sh
+```
+
 If you don't provide the `http://` or `https://` prefix, the script will default to `https://`.
 
 ## Sample Output
