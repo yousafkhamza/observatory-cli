@@ -188,7 +188,6 @@ if [[ -n "$frame_ancestors" ]]; then
     echo "$frame_ancestors"
 else
     echo -e "\033[1;31mframe-ancestors directive missing in CSP.\033[0m"
-    total_score=$((total_score - 10))  # Deduct points for missing frame-ancestors
 fi
 
 # Display extracted frame-src
@@ -197,7 +196,6 @@ if [[ -n "$frame_src" ]]; then
     echo "$frame_src"
 else
     echo -e "\033[1;31mframe-src directive missing in CSP.\033[0m"
-    total_score=$((total_score - 10))  # Deduct points for missing frame-src
 fi
 
 # Line separator
