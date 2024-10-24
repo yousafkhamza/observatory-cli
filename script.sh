@@ -31,7 +31,7 @@ function progress_bar {
 # Show progress while fetching the HTTP status code and headers in the background
 {
     echo -n "Checking Site Score of "$url""
-    progress_bar 5  # Adjust the duration if needed
+    progress_bar 30  # Adjust the duration if needed
 } &  # Run the progress bar in the background
 
 # Fetch the HTTP status code and headers from the URL
