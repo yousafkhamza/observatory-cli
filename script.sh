@@ -2,9 +2,7 @@
 
 # Author: Yousaf
 # Date: 2024
-# Description: This script checks the security headers of a given URL, along with Cookies, Redirection, and CORS.
-# It fetches the headers and evaluates the presence of important security headers.
-# The script also calculates a score based on the headers found, including Cookies, Redirection, and CORS.
+# Description: This script checks the security headers of a given URL, including Cookies, Redirection, CORS, and Clickjacking protection.
 
 url="$1"
 
@@ -68,16 +66,16 @@ echo "----------------------------------------"
 # Check for relevant security headers
 if echo "$headers" | grep -qi "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options\|X-XSS-Protection\|Referrer-Policy"; then
   # Display relevant headers in green
-  echo -e "\033[1;33mHeaders found:\033[0m"  
-  echo -e "\033[1;32m$headers\033[0m" | grep -i "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options\|X-XSS-Protection\|Referrer-Policy"
+  echo -e "\033[1;33mHeaders found:\033[0m"
+  echo -e "\033[1;32m$headers\033[0m" | grep -i "Strict-Transport-Security\|Content-Security-Policy\|X-Content-Type-Options\|X-XSS-Protection\|Referrer-Policy"
   relevant_headers_found=true
 else
   echo -e "\033[1;31mNo relevant security headers found.\033[0m"  # Red
 fi
 
 # Define scoring mechanism
-total_security_headers=6
-score_per_security_header=$((60 / total_security_headers)) # Each header is worth 10 points
+total_security_headers=7  # Increased to 7 for the additional CSP frame-ancestors
+score_per_security_header=$((60 / total_security_headers)) # Each header is worth 8.57 points
 total_score=100  # Total score including Cookies, Redirection, and CORS
 
 # Check for missing security headers
@@ -89,6 +87,12 @@ for header in "Strict-Transport-Security" "Content-Security-Policy" "X-Content-T
     total_score=$((total_score - score_per_security_header))  # Deduct points for missing headers
   fi
 done
+
+# Check for CSP frame-ancestors
+if ! echo "$headers" | grep -qi "frame-ancestors"; then
+  missing_headers+=("CSP frame-ancestors")
+  total_score=$((total_score - score_per_security_header))  # Deduct points for missing frame-ancestors
+fi
 
 # Ensure score does not go below zero
 if (( total_score < 0 )); then
@@ -144,6 +148,65 @@ fi
 # Line separator
 echo "----------------------------------------"
 
+# Check for clickjacking protection using X-Frame-Options and frame-ancestors
+# Check for clickjacking protection using X-Frame-Options and frame-ancestors
+echo -e "\033[1;33mChecking for Clickjacking Protection:\033[0m"
+
+x_frame_options=$(echo "$headers" | grep -i "X-Frame-Options")
+frame_ancestors=$(echo "$headers" | grep -i "frame-ancestors")
+csp_header=$(echo "$headers" | grep -i "Content-Security-Policy")
+
+# Extract frame-src and frame-ancestors from the CSP header
+if [[ -n "$csp_header" ]]; then
+    frame_src=$(echo "$csp_header" | grep -oP "frame-src [^;]+" || true)
+    frame_ancestors=$(echo "$csp_header" | grep -oP "frame-ancestors [^;]+" || true)
+else
+    frame_src=""
+    frame_ancestors=""
+fi
+
+if [[ -n "$x_frame_options" ]]; then
+    echo -e "\033[1;32mX-Frame-Options header found:\033[0m"
+    echo "$x_frame_options"
+    # Additional analysis for X-Frame-Options
+    if echo "$x_frame_options" | grep -iq "deny\|sameorigin"; then
+        echo -e "\033[1;32mClickjacking protection via X-Frame-Options is enabled.\033[0m"
+    else
+        echo -e "\033[1;31mX-Frame-Options exists but is not properly set for protection.\033[0m"
+    fi
+else
+    echo -e "\033[1;31mX-Frame-Options header missing.\033[0m"
+fi
+
+# Display extracted frame-ancestors
+if [[ -n "$frame_ancestors" ]]; then
+    echo -e "\033[1;32mFrame-ancestors directive found:\033[0m"
+    echo "$frame_ancestors"
+else
+    echo -e "\033[1;31mFrame-ancestors directive missing in CSP.\033[0m"
+    total_score=$((total_score - 10))  # Deduct points for missing frame-ancestors
+fi
+
+# Display extracted frame-src
+if [[ -n "$frame_src" ]]; then
+    echo -e "\033[1;32mFrame-src directive found:\033[0m"
+    echo "$frame_src"
+else
+    echo -e "\033[1;31mFrame-src directive missing in CSP.\033[0m"
+    total_score=$((total_score - 10))  # Deduct points for missing frame-src
+fi
+
+# Line separator
+echo "----------------------------------------"
+
+# Update scoring mechanism
+if [[ -z "$frame_ancestors" ]]; then
+    total_score=$((total_score - 10))  # Deduct points if frame-ancestors is missing
+fi
+if [[ -z "$frame_src" ]]; then
+    total_score=$((total_score - 10))  # Deduct points if frame-src is missing
+fi
+
 # Display the total score with color-coded output based on the score
 if (( total_score < 40 )); then
   echo -e "\033[1;31mSite Score: $total_score/100\033[0m"  # Red
@@ -156,13 +219,14 @@ fi
 # Line separator
 echo "----------------------------------------"
 
-# Report on missing security headers
-if [ ${#missing_headers[@]} -eq 0 ]; then
-  echo -e "\033[1;32mAll important security headers are present!\033[0m"
-else
-  echo -e "\033[1;31mMissing security headers:\033[0m"  # Red
-  echo -e "\033[1;31m-----------------\033[0m"
+# Summary of missing headers
+if [ ${#missing_headers[@]} -gt 0 ]; then
+  echo -e "\033[1;31mMissing Security Headers:\033[0m"
   for header in "${missing_headers[@]}"; do
-    echo "$header"
+    echo "- $header"
   done
+else
+  echo -e "\033[1;32mAll relevant security headers are present!\033[0m"
 fi
+
+echo -e "\033[1;34mCheck completed.\033[0m"
