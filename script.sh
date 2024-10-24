@@ -91,13 +91,11 @@ done
 # Check for CSP frame-ancestors
 if ! echo "$headers" | grep -qi "frame-ancestors"; then
   missing_headers+=("frame-ancestors is missing in CSP")
-  total_score=$((total_score - score_per_security_header))  # Deduct points for missing frame-ancestors
 fi
 
 # Check for CSP frame-ancestors
 if ! echo "$headers" | grep -qi "frame-src"; then
   missing_headers+=("frame-src is missing in CSP")
-  total_score=$((total_score - score_per_security_header))  # Deduct points for missing frame-src
 fi
 
 # Ensure score does not go below zero
@@ -204,6 +202,14 @@ fi
 
 # Line separator
 echo "----------------------------------------"
+
+# Update scoring mechanism
+if [[ -z "$frame_ancestors" ]]; then
+    total_score=$((total_score - 10))  # Deduct points if frame-ancestors is missing
+fi
+if [[ -z "$frame_src" ]]; then
+    total_score=$((total_score - 10))  # Deduct points if frame-src is missing
+fi
 
 # Display the total score with color-coded output based on the score
 if (( total_score < 40 )); then
