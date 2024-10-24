@@ -90,8 +90,14 @@ done
 
 # Check for CSP frame-ancestors
 if ! echo "$headers" | grep -qi "frame-ancestors"; then
-  missing_headers+=("CSP frame-ancestors")
+  missing_headers+=("frame-ancestors is missing in CSP")
   total_score=$((total_score - score_per_security_header))  # Deduct points for missing frame-ancestors
+fi
+
+# Check for CSP frame-ancestors
+if ! echo "$headers" | grep -qi "frame-src"; then
+  missing_headers+=("frame-src is missing in CSP")
+  total_score=$((total_score - score_per_security_header))  # Deduct points for missing frame-src
 fi
 
 # Ensure score does not go below zero
@@ -180,19 +186,19 @@ fi
 
 # Display extracted frame-ancestors
 if [[ -n "$frame_ancestors" ]]; then
-    echo -e "\033[1;32mFrame-ancestors directive found:\033[0m"
+    echo -e "\033[1;32mframe-ancestors directive found:\033[0m"
     echo "$frame_ancestors"
 else
-    echo -e "\033[1;31mFrame-ancestors directive missing in CSP.\033[0m"
+    echo -e "\033[1;31mframe-ancestors directive missing in CSP.\033[0m"
     total_score=$((total_score - 10))  # Deduct points for missing frame-ancestors
 fi
 
 # Display extracted frame-src
 if [[ -n "$frame_src" ]]; then
-    echo -e "\033[1;32mFrame-src directive found:\033[0m"
+    echo -e "\033[1;32mframe-src directive found:\033[0m"
     echo "$frame_src"
 else
-    echo -e "\033[1;31mFrame-src directive missing in CSP.\033[0m"
+    echo -e "\033[1;31mframe-src directive missing in CSP.\033[0m"
     total_score=$((total_score - 10))  # Deduct points for missing frame-src
 fi
 
